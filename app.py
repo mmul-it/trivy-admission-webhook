@@ -10,7 +10,7 @@ def deployment_webhook():
     is_secure = True
     for each_image in request_info["request"]["object"]["spec"]["containers"]:
         command = [
-            "/usr/local/bin/trivy",
+            "trivy",
             "image",
             "-f",
             "json",
@@ -42,5 +42,5 @@ def admission_response(allowed, message, uid):
 
 if __name__ == "__main__":
     admission_controller.run(
-        host="0.0.0.0", port=443, ssl_context=("certs/server.crt", "certs/server.key" ), debug=True
+        host="0.0.0.0", port=443, ssl_context=("/certs/tls.crt", "/certs/tls.key" ), debug=True
     )
