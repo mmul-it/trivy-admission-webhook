@@ -1,3 +1,4 @@
+import os
 import cherrypy
 from subprocess import Popen
 
@@ -19,9 +20,10 @@ class admission_webhook:
                 "CRITICAL",
                 "--exit-code",
                 "1",
-                "--insecure",
                 each_image["image"],
             ]
+            if os.environ.get('ALLOW_INSECURE_REGISTRIES', "False").lower() == 'true':
+                command.insert(-1, "--insecure")
             print("Running command: %s" % " ".join(command))
             r = Popen(command)
             r.communicate()
