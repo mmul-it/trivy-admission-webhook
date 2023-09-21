@@ -19,6 +19,7 @@ class admission_webhook:
                 "CRITICAL",
                 "--exit-code",
                 "1",
+                "--insecure",
                 each_image["image"],
             ]
             print("Running command: %s" % " ".join(command))
