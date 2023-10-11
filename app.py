@@ -10,6 +10,7 @@ class admission_webhook:
         request_info = cherrypy.request.json
         uid = request_info["request"]["uid"]
         is_secure = True
+        insecure_containers = []
         for each_image in request_info["request"]["object"]["spec"]["containers"]:
             command = [
                 "trivy",
@@ -28,11 +29,12 @@ class admission_webhook:
             r = Popen(command)
             r.communicate()
             if r.returncode == 1:
+                insecure_containers.append(each_image["image"])
                 is_secure = False
     
         if is_secure:
             return admission_response(True, "All containers are secure", uid)
-        return admission_response(False, "Not all containers secure, failing ...", uid)
+        return admission_response(False, 'Check Failed! These are insecure container images: ' + ', '.join(insecure_containers), uid)
 
 def admission_response(allowed, message, uid):
     msg = {
