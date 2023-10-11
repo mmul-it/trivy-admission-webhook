@@ -14,15 +14,15 @@ class admission_webhook:
             command = [
                 "trivy",
                 "image",
-                "-f",
+                "--format",
                 "json",
-                "-s",
-                "CRITICAL",
+                "--severity",
+                os.environ.get("TRIVY_WEBHOOK_SEVERITY", "CRITICAL"),
                 "--exit-code",
                 "1",
                 each_image["image"],
             ]
-            if os.environ.get('ALLOW_INSECURE_REGISTRIES', "False").lower() == 'true':
+            if os.environ.get("TRIVY_WEBHOOK_ALLOW_INSECURE_REGISTRIES", "False").lower() == "true":
                 command.insert(-1, "--insecure")
             print("Running command: %s" % " ".join(command))
             r = Popen(command)
@@ -44,12 +44,12 @@ def admission_response(allowed, message, uid):
 
 if __name__ == "__main__":
     server_config={
-        'server.socket_host': '0.0.0.0',
-        'server.socket_port':443,
+        "server.socket_host": os.environ.get("TRIVY_WEBHOOK_SSL_IP", "0.0.0.0"),
+        "server.socket_port": int(os.environ.get("TRIVY_WEBHOOK_SSL_PORT", "443")),
  
-        'server.ssl_module':'pyopenssl',
-        'server.ssl_certificate':'/certs/tls.crt',
-        'server.ssl_private_key':'/certs/tls.key',
+        "server.ssl_module": "pyopenssl",
+        "server.ssl_certificate": os.environ.get("TRIVY_WEBHOOK_SSL_CERT", "/certs/tls.crt"),
+        "server.ssl_private_key": os.environ.get("TRIVY_WEBHOOK_SSL_KEY", "/certs/tls.key"),
    }
 
 cherrypy.config.update(server_config)
